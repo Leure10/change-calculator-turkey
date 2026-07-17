@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0B3B39" />
+  <meta name="description" content="Calculate your change in TRY, EUR and USD while shopping in Turkey. Works offline." />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Change" />
+  <title>Change Calculator (Para Üstü)</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="brand">
+        <svg class="brand-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M14 3.5 L11 21 L16 18.5 M6.5 10.5 L17.5 7 M6.5 14.5 L17.5 11" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="brand-text">
+          <h1>Change Calculator</h1>
+          <p>Para Üstü Hesaplayıcı</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- RATE STATUS -->
+    <div id="rateBar" class="rate-bar rate-loading" role="status" aria-live="polite">
+      <span class="rate-dot"></span>
+      <span id="rateText">Loading rates… (Kur yükleniyor…)</span>
+    </div>
+
+    <main class="content">
+
+      <!-- PRICE -->
+      <section class="field field-price">
+        <label for="price">
+          <span class="lbl-en">Price in Turkish Lira</span>
+          <span class="lbl-tr">Fiyat (₺)</span>
+        </label>
+        <div class="input-wrap">
+          <span class="currency-mark">₺</span>
+          <input id="price" type="text" inputmode="decimal" enterkeyhint="done"
+                 placeholder="0" autocomplete="off" aria-describedby="priceRon" />
+        </div>
+        <p id="priceRon" class="hint-ron">≈ 0.00 RON (lei)</p>
+      </section>
+
+      <div class="divider">
+        <span>You pay (Ödeme)</span>
+      </div>
+
+      <!-- PAYMENTS -->
+      <section class="pay-grid">
+        <div class="field">
+          <label for="payEur">
+            <span class="lbl-en">Euro</span>
+            <span class="lbl-tr">Euro (€)</span>
+          </label>
+          <div class="input-wrap">
+            <span class="currency-mark">€</span>
+            <input id="payEur" type="text" inputmode="decimal" placeholder="0" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="payUsd">
+            <span class="lbl-en">US Dollars</span>
+            <span class="lbl-tr">Dolar ($)</span>
+          </label>
+          <div class="input-wrap">
+            <span class="currency-mark">$</span>
+            <input id="payUsd" type="text" inputmode="decimal" placeholder="0" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="field field-full">
+          <label for="payTry">
+            <span class="lbl-en">Turkish Lira</span>
+            <span class="lbl-tr">Türk Lirası (₺)</span>
+          </label>
+          <div class="input-wrap">
+            <span class="currency-mark">₺</span>
+            <input id="payTry" type="text" inputmode="decimal" placeholder="0" autocomplete="off" />
+          </div>
+        </div>
+      </section>
+
+      <!-- ACTIONS -->
+      <button id="calcBtn" class="btn-calc" type="button">
+        <span class="btn-en">CALCULATE CHANGE</span>
+        <span class="btn-tr">Para Üstünü Hesapla</span>
+      </button>
+      <button id="resetBtn" class="btn-reset" type="button">Clear (Temizle)</button>
+
+      <!-- RESULT -->
+      <section id="result" class="result" hidden aria-live="polite">
+        <p id="resultTitle" class="result-title">Change to receive (Para üstü)</p>
+        <div class="result-rows">
+          <div class="result-row primary">
+            <span class="r-cur">₺ TRY</span>
+            <span id="outTry" class="r-val">0.00</span>
+          </div>
+          <div class="result-row">
+            <span class="r-cur">€ EUR</span>
+            <span id="outEur" class="r-val">0.00</span>
+          </div>
+          <div class="result-row">
+            <span class="r-cur">$ USD</span>
+            <span id="outUsd" class="r-val">0.00</span>
+          </div>
+        </div>
+        <p id="resultNote" class="result-note"></p>
+      </section>
+
+    </main>
+
+    <footer class="footer">
+      <span id="footRate">—</span>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
