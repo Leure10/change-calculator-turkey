@@ -58,7 +58,7 @@ const els = {
   calcBtn: $('calcBtn'), resetBtn: $('resetBtn'),
   result: $('result'), resultTitle: $('resultTitle'),
   outTry: $('outTry'), outEur: $('outEur'), outUsd: $('outUsd'),
-  footRate: $('footRate'),
+  rateEur: $('rateEur'), rateUsd: $('rateUsd'), rateRon: $('rateRon'),
 };
 const priceInputs = [els.priceTry, els.priceEur, els.priceUsd];
 const payInputs = [els.payTry, els.payEur, els.payUsd];
@@ -144,7 +144,6 @@ async function loadRates() {
     onRatesReady(false);
   } else {
     setRateBar('error', 'No internet — open once online · İnternet yok');
-    els.footRate.textContent = 'No rate available yet · Kur yok';
   }
 }
 
@@ -155,8 +154,9 @@ function onRatesReady(isLive) {
   } else {
     setRateBar('offline', `Offline · Çevrimdışı · ${when}`);
   }
-  els.footRate.textContent =
-    `1 € = ${R.eurToTry.toFixed(2)} ₺ · 1 $ = ${R.usdToTry.toFixed(2)} ₺ · 1 ₺ = ${R.tryToRon.toFixed(4)} lei`;
+  els.rateEur.textContent = R.eurToTry.toFixed(2);
+  els.rateUsd.textContent = R.usdToTry.toFixed(2);
+  els.rateRon.textContent = (1 / R.tryToRon).toFixed(2);
   updateConversion();
   if (els.result.classList.contains('done')) doCalc(); // refresh a shown result
 }
@@ -255,7 +255,17 @@ priceInputs.forEach((inp) => inp.addEventListener('input', (e) => {
 }));
 payInputs.forEach((inp) => {
   inp.addEventListener('input', (e) => { sanitize(e); clearResult(); });
-  inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { inp.blur(); doCalc(); } });
+});
+
+// Keyboard covers most of the screen: close it when a box is done.
+// "Done"/Enter key on the keyboard → hide keyboard (tap a box to bring it back).
+[...priceInputs, ...payInputs].forEach((inp) => {
+  inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } });
+});
+// Tap anywhere outside a box → hide keyboard.
+document.addEventListener('pointerdown', (e) => {
+  const a = document.activeElement;
+  if (a && a.tagName === 'INPUT' && !e.target.closest('.box')) a.blur();
 });
 els.calcBtn.addEventListener('click', () => { document.activeElement.blur(); doCalc(); });
 els.resetBtn.addEventListener('click', resetAll);

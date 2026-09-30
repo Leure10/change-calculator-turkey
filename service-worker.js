@@ -1,5 +1,5 @@
 /* ===== Service Worker — offline app shell ===== */
-const CACHE = 'ccx-v3';
+const CACHE = 'ccx-v4';
 const ASSETS = [
   './',
   './index.html',

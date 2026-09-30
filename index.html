@@ -47,15 +47,15 @@
         <h2 class="block-title">Merchant price <span>Satıcı fiyatı</span></h2>
         <div class="row row-3">
           <label class="box">
-            <input id="priceTry" class="in-price" data-cur="TRY" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Price in Turkish lira" />
+            <input id="priceTry" class="in-price" data-cur="TRY" type="text" inputmode="decimal" enterkeyhint="done" placeholder="0" autocomplete="off" aria-label="Price in Turkish lira" />
             <span class="cur">₺ TRY</span>
           </label>
           <label class="box">
-            <input id="priceEur" class="in-price" data-cur="EUR" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Price in euro" />
+            <input id="priceEur" class="in-price" data-cur="EUR" type="text" inputmode="decimal" enterkeyhint="done" placeholder="0" autocomplete="off" aria-label="Price in euro" />
             <span class="cur">€ EUR</span>
           </label>
           <label class="box">
-            <input id="priceUsd" class="in-price" data-cur="USD" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Price in US dollars" />
+            <input id="priceUsd" class="in-price" data-cur="USD" type="text" inputmode="decimal" enterkeyhint="done" placeholder="0" autocomplete="off" aria-label="Price in US dollars" />
             <span class="cur">$ USD</span>
           </label>
         </div>
@@ -77,15 +77,15 @@
         <h2 class="block-title">You pay with <span>Ödeme</span></h2>
         <div class="row row-3">
           <label class="box">
-            <input id="payTry" class="in-pay" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Paid in Turkish lira" />
+            <input id="payTry" class="in-pay" type="text" inputmode="decimal" enterkeyhint="done" placeholder="0" autocomplete="off" aria-label="Paid in Turkish lira" />
             <span class="cur">₺ TRY</span>
           </label>
           <label class="box">
-            <input id="payEur" class="in-pay" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Paid in euro" />
+            <input id="payEur" class="in-pay" type="text" inputmode="decimal" enterkeyhint="done" placeholder="0" autocomplete="off" aria-label="Paid in euro" />
             <span class="cur">€ EUR</span>
           </label>
           <label class="box">
-            <input id="payUsd" class="in-pay" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Paid in US dollars" />
+            <input id="payUsd" class="in-pay" type="text" inputmode="decimal" enterkeyhint="done" placeholder="0" autocomplete="off" aria-label="Paid in US dollars" />
             <span class="cur">$ USD</span>
           </label>
         </div>
@@ -109,9 +109,15 @@
 
     </main>
 
-    <footer class="footer">
-      <span id="footRate">—</span>
-    </footer>
+    <!-- 6. EXCHANGE RATES -->
+    <section class="block rates">
+      <h2 class="block-title">Exchange rates <span>Döviz kurları</span></h2>
+      <div class="row row-3">
+        <div class="box out rate"><span class="pair">1 € EUR</span><output id="rateEur">—</output><span class="cur">₺ TRY</span></div>
+        <div class="box out rate"><span class="pair">1 $ USD</span><output id="rateUsd">—</output><span class="cur">₺ TRY</span></div>
+        <div class="box out rate"><span class="pair">1 lei RON</span><output id="rateRon">—</output><span class="cur">₺ TRY</span></div>
+      </div>
+    </section>
 
   </div>
 

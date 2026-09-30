@@ -91,6 +91,8 @@ body { display: flex; justify-content: center; }
 
 /* ===== Content ===== */
 .content { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+/* boxes grow with the screen height so the page fills the phone */
+:root { --box-h: clamp(40px, 6.6dvh, 70px); }
 
 .block-title {
   margin: 0 2px 5px; font-size: 0.9rem; font-weight: 700; color: var(--ink);
@@ -124,10 +126,11 @@ body { display: flex; justify-content: center; }
   width: 100%; min-width: 0;
   border: none; outline: none; background: transparent;
   font-family: inherit; font-size: 1.35rem; font-weight: 700; color: var(--ink);
-  padding: 4px 0 0; min-height: 36px; line-height: 1.2;
+  padding: 4px 0 0; min-height: var(--box-h); line-height: 1.2;
   text-align: center; font-variant-numeric: tabular-nums;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+.box output { display: flex; align-items: center; justify-content: center; }
 .box input::placeholder { color: #B4C0BE; font-weight: 600; }
 .cur {
   font-size: 0.74rem; font-weight: 600; color: var(--ink-soft);
@@ -137,11 +140,11 @@ body { display: flex; justify-content: center; }
 /* read-only boxes */
 .box.out { background: #F6F8F8; border-style: dashed; cursor: default; }
 .row-4 .box { padding: 4px 4px 5px; }
-.row-4 .box output { font-size: 0.98rem; min-height: 30px; padding-top: 5px; }
+.row-4 .box output { font-size: 0.98rem; min-height: calc(var(--box-h) - 6px); padding-top: 5px; }
 
 /* ===== Button ===== */
 .btn-calc {
-  width: 100%; min-height: 58px;
+  width: 100%; min-height: calc(var(--box-h) + 10px);
   border: none; border-radius: var(--radius);
   background: var(--gold); color: #2A1E00;
   font-family: inherit; cursor: pointer;
@@ -154,7 +157,7 @@ body { display: flex; justify-content: center; }
 .btn-tr { font-size: 0.8rem; font-weight: 500; opacity: .85; }
 
 /* ===== Result ===== */
-.result .box.big output { font-size: 1.3rem; min-height: 38px; color: var(--ink-soft); }
+.result .box.big output { font-size: 1.3rem; min-height: var(--box-h); color: var(--ink-soft); }
 .result.pos .block-title { color: var(--green); }
 .result.pos .box { border-color: var(--green); background: var(--green-bg); border-style: solid; }
 .result.pos .box output { color: var(--green); }
@@ -164,19 +167,20 @@ body { display: flex; justify-content: center; }
 .result.done .box { animation: rise .25s ease; }
 @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-/* ===== Footer ===== */
-.footer {
-  margin-top: 10px; padding-top: 8px;
-  border-top: 1px solid var(--line);
-  font-size: 0.72rem; color: var(--ink-soft); text-align: center;
-}
+/* ===== Exchange rates ===== */
+.rates { margin-top: auto; padding-top: 4px; }
+.box.rate { background: #EAF1F0; border-color: #C9D8D5; border-style: solid; }
+.box.rate .pair { font-size: 0.74rem; font-weight: 600; color: var(--ink-soft); text-align: center; padding-top: 2px; }
+.box.rate output { color: var(--brand); min-height: calc(var(--box-h) - 12px); padding-top: 0; }
 
 /* ===== Small phones ===== */
 @media (max-height: 700px) {
   .content { gap: 7px; }
+  :root { --box-h: 34px; }
+  .block-title { margin-bottom: 3px; }
   .brand-text p { display: none; }
-  .box input, .box output { font-size: 1.2rem; min-height: 32px; }
-  .btn-calc { min-height: 52px; }
+  .box input, .box output { font-size: 1.2rem; }
+  .btn-calc { min-height: 50px; }
 }
 @media (max-width: 350px) {
   .box input, .box output { font-size: 1.1rem; }
