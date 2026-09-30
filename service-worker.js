@@ -1,5 +1,5 @@
 /* ===== Service Worker — offline app shell ===== */
-const CACHE = 'ccx-v1';
+const CACHE = 'ccx-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -28,7 +28,7 @@ self.addEventListener('activate', (event) => {
 
 // Fetch strategy:
 //  - Currency APIs: network only (never cache stale rates; app.js handles offline via localStorage)
-//  - App shell + fonts: cache-first, fall back to network and cache it
+//  - App shell + fonts: network-first, cache fallback when offline
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -46,20 +46,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Network-first: an online phone always gets the newest version;
+  // offline, the cached copy is used.
   event.respondWith(
-    caches.match(req).then((cached) => {
-      if (cached) return cached;
-      return fetch(req).then((res) => {
-        // cache same-origin assets and Google Fonts for offline
-        const okToCache =
-          res.ok && (url.origin === self.location.origin ||
-                     url.hostname.includes('fonts.g'));
-        if (okToCache) {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
-        }
-        return res;
-      }).catch(() => cached);
-    })
+    fetch(req).then((res) => {
+      const okToCache =
+        res.ok && (url.origin === self.location.origin ||
+                   url.hostname.includes('fonts.g'));
+      if (okToCache) {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(req, copy));
+      }
+      return res;
+    }).catch(() => caches.match(req, { ignoreSearch: true }))
   );
 });

@@ -29,95 +29,82 @@
           <p>Para Üstü Hesaplayıcı</p>
         </div>
       </div>
+      <button id="resetBtn" class="btn-reset" type="button">
+        <span>Clear</span><span class="sub">Temizle</span>
+      </button>
     </header>
 
     <!-- RATE STATUS -->
     <div id="rateBar" class="rate-bar rate-loading" role="status" aria-live="polite">
       <span class="rate-dot"></span>
-      <span id="rateText">Loading rates… (Kur yükleniyor…)</span>
+      <span id="rateText">Loading rates… · Kur yükleniyor…</span>
     </div>
 
     <main class="content">
 
-      <!-- PRICE -->
-      <section class="field field-price">
-        <label for="price">
-          <span class="lbl-en">Price in Turkish Lira</span>
-          <span class="lbl-tr">Fiyat (₺)</span>
-        </label>
-        <div class="input-wrap">
-          <span class="currency-mark">₺</span>
-          <input id="price" type="text" inputmode="decimal" enterkeyhint="done"
-                 placeholder="0" autocomplete="off" aria-describedby="priceRon" />
-        </div>
-        <p id="priceRon" class="hint-ron">≈ 0.00 RON (lei)</p>
-      </section>
-
-      <div class="divider">
-        <span>You pay (Ödeme)</span>
-      </div>
-
-      <!-- PAYMENTS -->
-      <section class="pay-grid">
-        <div class="field">
-          <label for="payEur">
-            <span class="lbl-en">Euro</span>
-            <span class="lbl-tr">Euro (€)</span>
+      <!-- 1. MERCHANT PRICE (one box only) -->
+      <section class="block">
+        <h2 class="block-title">Merchant price <span>Satıcı fiyatı</span></h2>
+        <div class="row row-3">
+          <label class="box">
+            <input id="priceTry" class="in-price" data-cur="TRY" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Price in Turkish lira" />
+            <span class="cur">₺ TRY</span>
           </label>
-          <div class="input-wrap">
-            <span class="currency-mark">€</span>
-            <input id="payEur" type="text" inputmode="decimal" placeholder="0" autocomplete="off" />
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="payUsd">
-            <span class="lbl-en">US Dollars</span>
-            <span class="lbl-tr">Dolar ($)</span>
+          <label class="box">
+            <input id="priceEur" class="in-price" data-cur="EUR" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Price in euro" />
+            <span class="cur">€ EUR</span>
           </label>
-          <div class="input-wrap">
-            <span class="currency-mark">$</span>
-            <input id="payUsd" type="text" inputmode="decimal" placeholder="0" autocomplete="off" />
-          </div>
-        </div>
-
-        <div class="field field-full">
-          <label for="payTry">
-            <span class="lbl-en">Turkish Lira</span>
-            <span class="lbl-tr">Türk Lirası (₺)</span>
+          <label class="box">
+            <input id="priceUsd" class="in-price" data-cur="USD" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Price in US dollars" />
+            <span class="cur">$ USD</span>
           </label>
-          <div class="input-wrap">
-            <span class="currency-mark">₺</span>
-            <input id="payTry" type="text" inputmode="decimal" placeholder="0" autocomplete="off" />
-          </div>
         </div>
       </section>
 
-      <!-- ACTIONS -->
+      <!-- 2. CONVERSION (automatic) -->
+      <section class="block">
+        <h2 class="block-title">Conversion <span>Dönüşüm</span></h2>
+        <div class="row row-4">
+          <div class="box out"><output id="convTry">—</output><span class="cur">₺ TRY</span></div>
+          <div class="box out"><output id="convEur">—</output><span class="cur">€ EUR</span></div>
+          <div class="box out"><output id="convUsd">—</output><span class="cur">$ USD</span></div>
+          <div class="box out"><output id="convRon">—</output><span class="cur">lei RON</span></div>
+        </div>
+      </section>
+
+      <!-- 3. PAYMENT (one or more boxes, summed) -->
+      <section class="block">
+        <h2 class="block-title">You pay with <span>Ödeme</span></h2>
+        <div class="row row-3">
+          <label class="box">
+            <input id="payTry" class="in-pay" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Paid in Turkish lira" />
+            <span class="cur">₺ TRY</span>
+          </label>
+          <label class="box">
+            <input id="payEur" class="in-pay" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Paid in euro" />
+            <span class="cur">€ EUR</span>
+          </label>
+          <label class="box">
+            <input id="payUsd" class="in-pay" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Paid in US dollars" />
+            <span class="cur">$ USD</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- 4. BUTTON -->
       <button id="calcBtn" class="btn-calc" type="button">
         <span class="btn-en">CALCULATE CHANGE</span>
         <span class="btn-tr">Para Üstünü Hesapla</span>
       </button>
-      <button id="resetBtn" class="btn-reset" type="button">Clear (Temizle)</button>
 
-      <!-- RESULT -->
-      <section id="result" class="result" hidden aria-live="polite">
-        <p id="resultTitle" class="result-title">Change to receive (Para üstü)</p>
-        <div class="result-rows">
-          <div class="result-row primary">
-            <span class="r-cur">₺ TRY</span>
-            <span id="outTry" class="r-val">0.00</span>
-          </div>
-          <div class="result-row">
-            <span class="r-cur">€ EUR</span>
-            <span id="outEur" class="r-val">0.00</span>
-          </div>
-          <div class="result-row">
-            <span class="r-cur">$ USD</span>
-            <span id="outUsd" class="r-val">0.00</span>
-          </div>
+      <!-- 5. CHANGE -->
+      <section id="result" class="block result" aria-live="polite">
+        <h2 id="resultTitle" class="block-title">Change <span>Para üstü</span></h2>
+        <div class="row row-3">
+          <div class="box out big"><output id="outTry">—</output><span class="cur">₺ TRY</span></div>
+          <div class="box out big"><output id="outEur">—</output><span class="cur">€ EUR</span></div>
+          <div class="box out big"><output id="outUsd">—</output><span class="cur">$ USD</span></div>
         </div>
-        <p id="resultNote" class="result-note"></p>
       </section>
 
     </main>

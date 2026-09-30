@@ -52,13 +52,16 @@ let R = null; // { eurToTry, usdToTry, tryToRon, date, source, fetchedAt, offlin
 const $ = (id) => document.getElementById(id);
 const els = {
   rateBar: $('rateBar'), rateText: $('rateText'),
-  price: $('price'), priceRon: $('priceRon'),
-  payEur: $('payEur'), payUsd: $('payUsd'), payTry: $('payTry'),
+  priceTry: $('priceTry'), priceEur: $('priceEur'), priceUsd: $('priceUsd'),
+  convTry: $('convTry'), convEur: $('convEur'), convUsd: $('convUsd'), convRon: $('convRon'),
+  payTry: $('payTry'), payEur: $('payEur'), payUsd: $('payUsd'),
   calcBtn: $('calcBtn'), resetBtn: $('resetBtn'),
-  result: $('result'), resultTitle: $('resultTitle'), resultNote: $('resultNote'),
+  result: $('result'), resultTitle: $('resultTitle'),
   outTry: $('outTry'), outEur: $('outEur'), outUsd: $('outUsd'),
   footRate: $('footRate'),
 };
+const priceInputs = [els.priceTry, els.priceEur, els.priceUsd];
+const payInputs = [els.payTry, els.payEur, els.payUsd];
 
 // ---- Helpers ----
 const num = (v) => {
@@ -67,6 +70,17 @@ const num = (v) => {
   return isFinite(n) && n > 0 ? n : 0;
 };
 const fmt = (n) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+// Shrink the digits until they fit their box (big amounts like 12,450.00)
+function fit(el) {
+  el.style.fontSize = '';
+  let size = parseFloat(getComputedStyle(el).fontSize);
+  while (el.scrollWidth > el.clientWidth && size > 9) {
+    size -= 0.5;
+    el.style.fontSize = size + 'px';
+  }
+}
+const fitAll = () => document.querySelectorAll('.box output, .box input').forEach(fit);
 
 function normalize(raw, sourceName, offline) {
   return {
@@ -109,7 +123,7 @@ function loadCached() {
 }
 
 async function loadRates() {
-  setRateBar('loading', 'Loading rates… (Kur yükleniyor…)');
+  setRateBar('loading', 'Loading rates… · Kur yükleniyor…');
   for (const src of SOURCES) {
     try {
       const j = await fetchWithTimeout(src.url);
@@ -129,22 +143,22 @@ async function loadRates() {
     R = cached;
     onRatesReady(false);
   } else {
-    setRateBar('error', 'No internet. Open once online to load rates. (İnternet yok)');
-    els.footRate.textContent = 'No rate available yet';
+    setRateBar('error', 'No internet — open once online · İnternet yok');
+    els.footRate.textContent = 'No rate available yet · Kur yok';
   }
 }
 
 function onRatesReady(isLive) {
   const when = R.date ? R.date : (R.fetchedAt || '').slice(0, 10);
   if (isLive) {
-    setRateBar('live', `Live rate • ${when}  (Güncel kur)`);
+    setRateBar('live', `Live rate · Güncel kur · ${when}`);
   } else {
-    setRateBar('offline', `Offline — last rate ${when}  (Çevrimdışı)`);
+    setRateBar('offline', `Offline · Çevrimdışı · ${when}`);
   }
   els.footRate.textContent =
-    `1 € = ${R.eurToTry.toFixed(3)} ₺   ·   1 $ = ${R.usdToTry.toFixed(3)} ₺   ·   1 ₺ = ${R.tryToRon.toFixed(4)} RON`;
-  updateRonHint();
-  if (!els.result.hidden) doCalc(); // refresh if a result is showing
+    `1 € = ${R.eurToTry.toFixed(2)} ₺ · 1 $ = ${R.usdToTry.toFixed(2)} ₺ · 1 ₺ = ${R.tryToRon.toFixed(4)} lei`;
+  updateConversion();
+  if (els.result.classList.contains('done')) doCalc(); // refresh a shown result
 }
 
 function setRateBar(kind, text) {
@@ -152,59 +166,73 @@ function setRateBar(kind, text) {
   els.rateText.textContent = text;
 }
 
-// ---- Live RON hint under price ----
-function updateRonHint() {
-  const p = num(els.price.value);
-  if (!R) { els.priceRon.textContent = '≈ … RON (lei)'; return; }
-  const ron = p * R.tryToRon;
-  els.priceRon.textContent = `≈ ${fmt(ron)} RON (lei)`;
+// ---- Currency → TRY factor ----
+function toTry(cur) {
+  if (cur === 'EUR') return R.eurToTry;
+  if (cur === 'USD') return R.usdToTry;
+  return 1;
+}
+
+// Price in TRY, from whichever single price box is filled
+function priceInTry() {
+  const filled = priceInputs.find((i) => num(i.value) > 0);
+  if (!filled || !R) return 0;
+  return num(filled.value) * toTry(filled.dataset.cur);
+}
+
+// ---- Automatic conversion row ----
+function updateConversion() {
+  const outs = [els.convTry, els.convEur, els.convUsd, els.convRon];
+  const p = priceInTry();
+  if (!R || p <= 0) { outs.forEach((o) => (o.textContent = '—')); fitAll(); return; }
+  els.convTry.textContent = fmt(p);
+  els.convEur.textContent = fmt(p / R.eurToTry);
+  els.convUsd.textContent = fmt(p / R.usdToTry);
+  els.convRon.textContent = fmt(p * R.tryToRon);
+  fitAll();
 }
 
 // ---- Core calculation ----
 function doCalc() {
   if (!R) {
-    setRateBar('error', 'No rate loaded yet. Connect to internet once. (Kur yok)');
+    setRateBar('error', 'No rate loaded yet — connect once · Kur yok');
     return;
   }
-  const price   = num(els.price.value);
+  const price = priceInTry();
+  if (price <= 0) { els.priceTry.focus(); return; }
+
   const paidTry = num(els.payTry.value)
                 + num(els.payEur.value) * R.eurToTry
                 + num(els.payUsd.value) * R.usdToTry;
+  if (paidTry <= 0) { els.payTry.focus(); return; }
 
   const changeTry = paidTry - price;
   const absTry = Math.abs(changeTry);
 
-  const inTry = absTry;
-  const inEur = absTry / R.eurToTry;
-  const inUsd = absTry / R.usdToTry;
+  els.outTry.textContent = fmt(absTry);
+  els.outEur.textContent = fmt(absTry / R.eurToTry);
+  els.outUsd.textContent = fmt(absTry / R.usdToTry);
 
-  els.outTry.textContent = fmt(inTry);
-  els.outEur.textContent = fmt(inEur);
-  els.outUsd.textContent = fmt(inUsd);
-
-  els.result.hidden = false;
   els.result.classList.remove('pos', 'neg');
+  els.result.classList.add('done', changeTry >= 0 ? 'pos' : 'neg');
+  els.resultTitle.innerHTML = changeTry >= 0
+    ? 'Change <span>Para üstü</span>'
+    : 'Still to pay <span>Kalan ödeme</span>';
+  fitAll();
+}
 
-  if (changeTry >= 0) {
-    els.result.classList.add('pos');
-    els.resultTitle.textContent = 'Change to receive (Para üstü)';
-    els.resultNote.textContent = 'Amount the seller must give you back, shown in each currency.';
-  } else {
-    els.result.classList.add('neg');
-    els.resultTitle.textContent = 'Still to pay (Kalan ödeme)';
-    els.resultNote.textContent = 'You still owe this amount — shown in each currency.';
-  }
-  els.result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+function clearResult() {
+  els.result.classList.remove('done', 'pos', 'neg');
+  els.resultTitle.innerHTML = 'Change <span>Para üstü</span>';
+  [els.outTry, els.outEur, els.outUsd].forEach((o) => (o.textContent = '—'));
+  fitAll();
 }
 
 function resetAll() {
-  els.price.value = '';
-  els.payEur.value = '';
-  els.payUsd.value = '';
-  els.payTry.value = '';
-  els.result.hidden = true;
-  updateRonHint();
-  els.price.focus();
+  [...priceInputs, ...payInputs].forEach((i) => (i.value = ''));
+  updateConversion();
+  clearResult();
+  els.priceTry.focus();
 }
 
 // ---- Input sanitation: allow only numbers + one separator ----
@@ -218,13 +246,20 @@ function sanitize(e) {
 }
 
 // ---- Wire up ----
-[els.price, els.payEur, els.payUsd, els.payTry].forEach((inp) =>
-  inp.addEventListener('input', sanitize)
-);
-els.price.addEventListener('input', updateRonHint);
-els.calcBtn.addEventListener('click', doCalc);
+priceInputs.forEach((inp) => inp.addEventListener('input', (e) => {
+  sanitize(e);
+  // Only one price box at a time: typing in one clears the others
+  if (inp.value) priceInputs.forEach((o) => { if (o !== inp) o.value = ''; });
+  updateConversion();
+  clearResult();
+}));
+payInputs.forEach((inp) => {
+  inp.addEventListener('input', (e) => { sanitize(e); clearResult(); });
+  inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { inp.blur(); doCalc(); } });
+});
+els.calcBtn.addEventListener('click', () => { document.activeElement.blur(); doCalc(); });
 els.resetBtn.addEventListener('click', resetAll);
-els.payTry.addEventListener('keydown', (e) => { if (e.key === 'Enter') doCalc(); });
+window.addEventListener('resize', fitAll);
 
 // ---- Service worker (offline) ----
 if ('serviceWorker' in navigator) {
